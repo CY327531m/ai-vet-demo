@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI影像诊断 · 手机端</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #f5f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .phone {
+            width: 375px;
+            height: 667px;
+            background: #f5f5f7;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            padding-bottom: 80px;
+            background: #f8fafc;
+            scrollbar-width: none;
+        }
+
+        .content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 70px;
+            background: white;
+            border-top: 1px solid #f1f5f9;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.02);
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #94a3b8;
+            cursor: pointer;
+            flex: 1;
+            padding: 8px 0;
+            transition: all 0.2s;
+        }
+
+        .tab-item.active {
+            color: #667eea;
+        }
+
+        .tab-icon {
+            font-size: 22px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1px solid #f1f5f9;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px -1px rgba(102,126,234,0.3);
+            transition: all 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            box-shadow: none;
+        }
+
+        .camera-area {
+            background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 30px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px dashed #cbd5e1;
+            cursor: pointer;
+        }
+
+        .camera-icon {
+            font-size: 60px;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .item-icon {
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .item-sub {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-waiting {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge-done {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-blue {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            margin-top: 10px;
+        }
+
+        .back {
+            font-size: 28px;
+            cursor: pointer;
+            color: #667eea;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .header-title {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .progress {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 40px 0;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: #cbd5e1;
+            border-radius: 5px;
+            animation: pulse 1.2s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 100% { background: #cbd5e1; width: 10px; }
+            50% { background: #667eea; width: 20px; }
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 12px;
+            text-align: center;
+            border: 1px solid #f1f5f9;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .checkmark {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #d1fae5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: #059669;
+            font-size: 30px;
+        }
+
+        /* 相册网格 */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+
+        .photo-item {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #f1f5f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #64748b;
+            cursor: pointer;
+            border: 2px solid transparent;
+            overflow: hidden;
+        }
+
+        .photo-item.selected {
+            border-color: #667eea;
+        }
+
+        .photo-item svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 模拟相机全屏样式 */
+        .camera-fullscreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .camera-view {
+            flex: 1;
+            background: #1a1a1a;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* X光容器 */
+        .xray-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .xray-svg {
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+        }
+
+        /* 标注圆圈 */
+        .xray-mark-circle {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border: 4px solid #ff4444;
+            border-radius: 50%;
+            background: rgba(255,68,68,0.15);
+            box-shadow: 0 0 20px rgba(255,68,68,0.6);
+            animation: pulse-mark 1.5s infinite;
+            pointer-events: none;
+            z-index: 10;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes pulse-mark {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+        }
+
+        /* 标注箭头 */
+        .xray-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid #ffaa00;
+            filter: drop-shadow(0 0 10px #ffaa00);
+            animation: arrow-bounce 1s infinite;
+            pointer-events: none;
+            z-index: 10;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        @keyframes arrow-bounce {
+            0%, 100% { transform: translate(-50%, -50%) rotate(45deg) translateY(0); }
+            50% { transform: translate(-50%, -50%) rotate(45deg) translateY(-8px); }
+        }
+
+        /* 标注标签 */
+        .xray-label {
+            position: absolute;
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            border-left: 4px solid #ff4444;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            pointer-events: none;
+            z-index: 10;
+            transform: translate(0, -50%);
+        }
+
+        /* 测量线 */
+        .xray-measure-line {
+            position: absolute;
+            height: 3px;
+            background: #00ccff;
+            transform-origin: left;
+            box-shadow: 0 0 15px #00ccff;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .xray-measure-label {
+            position: absolute;
+            background: rgba(0,204,255,0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 11;
+            transform: translate(-50%, -50%);
+        }
+
+        .xray-measure-dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #00ccff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00ccff;
+            pointer-events: none;
+            z-index: 10;
+            transform: translate(-50%, -50%);
+        }
+
+        .camera-controls {
+            background: #000;
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .camera-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+            border: 3px solid #666;
+        }
+
+        .camera-btn:active {
+            transform: scale(0.95);
+        }
+
+        .camera-close {
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .confirm-bar {
+            background: #000;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .confirm-btn {
+            background: #667eea;
+            padding: 12px 30px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .retake-btn {
+            color: white;
+            cursor: pointer;
+        }
+
+        /* X光预览图库 */
+        .xray-preview-images {
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(0,0,0,0.8);
+            position: absolute;
+            bottom: 100px;
+            left: 0;
+            width: 100%;
+            overflow-x: auto;
+            z-index: 101;
+        }
+
+        .xray-thumb {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            background: #333;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid transparent;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .xray-thumb.selected {
+            border-color: #667eea;
+        }
+
+        .xray-thumb svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .xray-thumb-mark {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #ff4444;
+            border: 2px solid white;
+            border-radius: 50%;
+            top: 5px;
+            right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone" id="app"></div>
+
+    <script>
+        // 会诊状态
+        let consultStatus = {
+            applied: false,
+            expert: '',
+            expertType: '',
+            result: null
+        };
+
+        // 当前选择的病例
+        let currentCase = {
+            type: 'fracture',
+            animal: '金毛',
+            age: '5岁',
+            gender: '雄性',
+            weight: '28kg',
+            owner: '蒋女士'
+        };
+
+        // 相机状态
+        let cameraActive = false;
+        let photoCaptured = false;
+        let selectedXrayIndex = 0;
+
+        // 真实的动物X光片SVG
+        const xrayPreviews = [
+            { 
+                id: 1, 
+                animal: '金毛', 
+                diagnosis: 'fracture',
+                // 狗后腿骨折X光
+                svg: `<svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="300" height="500" fill="#111" />
+                    <!-- 背景噪点 -->
+                    <rect width="300" height="500" fill="url(#grain)" opacity="0.1" />
+                    <defs>
+                        <pattern id="grain" patternUnits="userSpaceOnUse" width="4" height="4">
+                            <rect width="2" height="2" fill="#fff" opacity="0.1" />
+                        </pattern>
+                    </defs>
+                    
+                    <!-- 股骨 -->
+                    <path d="M150 80 L160 200 L140 200 L150 80" fill="#555" opacity="0.8" />
+                    <path d="M145 85 L155 85 L160 200 L140 200" fill="#666" opacity="0.7" />
+                    
+                    <!-- 胫骨 - 有骨折线 -->
+                    <path d="M150 210 L165 350 L135 350 L150 210" fill="#555" opacity="0.8" />
+                    <path d="M147 220 L153 220 L160 350 L140 350" fill="#666" opacity="0.7" />
+                    
+                    <!-- 骨折线 (横断) -->
+                    <line x1="135" y1="280" x2="165" y2="280" stroke="#fff" stroke-width="8" opacity="0.9" />
+                    <line x1="140" y1="275" x2="160" y2="285" stroke="#aaa" stroke-width="3" />
+                    
+                    <!-- 骨骼细节 -->
+                    <circle cx="150" cy="200" r="15" fill="#444" opacity="0.6" />
+                    <circle cx="150" cy="350" r="20" fill="#444" opacity="0.6" />
+                    
+                    <!-- 软组织轮廓 -->
+                    <path d="M120 80 Q100 200 120 400" stroke="#333" fill="none" stroke-width="15" opacity="0.3" />
+                    <path d="M180 80 Q200 200 180 400" stroke="#333" fill="none" stroke-width="15" opacity="0.3" />
+                </svg>`,
+                marks: {
+                    circle: { x: 45, y: 56 },
+                    arrow: { x: 55, y: 50 },
+                    measure: { x1: 40, y1: 54, x2: 50, y2: 58, length: '3.2cm' },
+                    label: '胫骨骨折'
+                }
+            },
+            { 
+                id: 2, 
+                animal: '布偶', 
+                diagnosis: 'normal',
+                // 猫正常胸部X光
+                svg: `<svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="300" height="500" fill="#111" />
+                    
+                    <!-- 脊柱 -->
+                    <rect x="145" y="80" width="10" height="340" fill="#666" opacity="0.8" />
+                    
+                    <!-- 肋骨 (左) -->
+                    <path d="M140 120 Q90 150 140 180" stroke="#777" fill="none" stroke-width="5" opacity="0.7" />
+                    <path d="M140 180 Q90 210 140 240" stroke="#777" fill="none" stroke-width="5" opacity="0.7" />
+                    <path d="M140 240 Q90 270 140 300" stroke="#777" fill="none" stroke-width="5" opacity="0.7" />
+                    
+                    <!-- 肋骨 (右) -->
+                    <path d="M160 120 Q210 150 160 180" stroke="#777" fill="none" stroke-width="5" opacity="0.7" />
+                    <path d="M160 180 Q210 210 160 240" stroke="#777" fill="none" stroke-width="5" opacity="0.7" />
+                    <path d="M160 240 Q210 270 160 300" stroke="#777" fill="none" stroke-width="5" opacity="0.7" />
+                    
+                    <!-- 心脏轮廓 -->
+                    <ellipse cx="150" cy="200" rx="30" ry="35" fill="#555" opacity="0.5" />
+                    
+                    <!-- 肺部区域 -->
+                    <path d="M110 140 L130 260 L90 260 L100 140" fill="#444" opacity="0.3" />
+                    <path d="M190 140 L210 260 L170 260 L180 140" fill="#444" opacity="0.3" />
+                </svg>`,
+                marks: null
+            },
+            { 
+                id: 3, 
+                animal: '泰迪', 
+                diagnosis: 'normal',
+                // 小狗正常X光
+                svg: `<svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="300" height="500" fill="#111" />
+                    
+                    <!-- 脊柱 -->
+                    <rect x="145" y="100" width="10" height="300" fill="#666" opacity="0.8" />
+                    
+                    <!-- 肋骨 -->
+                    <path d="M135 130 Q100 160 135 190" stroke="#777" fill="none" stroke-width="4" opacity="0.7" />
+                    <path d="M135 190 Q100 220 135 250" stroke="#777" fill="none" stroke-width="4" opacity="0.7" />
+                    <path d="M165 130 Q200 160 165 190" stroke="#777" fill="none" stroke-width="4" opacity="0.7" />
+                    <path d="M165 190 Q200 220 165 250" stroke="#777" fill="none" stroke-width="4" opacity="0.7" />
+                    
+                    <!-- 前腿 -->
+                    <rect x="120" y="300" width="15" height="100" fill="#666" opacity="0.7" />
+                    <rect x="165" y="300" width="15" height="100" fill="#666" opacity="0.7" />
+                    
+                    <!-- 后腿 -->
+                    <rect x="100" y="380" width="15" height="80" fill="#666" opacity="0.7" />
+                    <rect x="185" y="380" width="15" height="80" fill="#666" opacity="0.7" />
+                </svg>`,
+                marks: null
+            },
+            { 
+                id: 4, 
+                animal: '拉布拉多', 
+                diagnosis: 'fracture',
+                // 狗前腿骨折X光
+                svg: `<svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="300" height="500" fill="#111" />
+                    
+                    <!-- 肩胛骨 -->
+                    <ellipse cx="150" cy="120" rx="30" ry="20" fill="#555" opacity="0.8" />
+                    
+                    <!-- 肱骨 -->
+                    <path d="M140 140 L145 240 L155 240 L160 140" fill="#555" opacity="0.8" />
+                    
+                    <!-- 桡骨/尺骨 - 有骨折 -->
+                    <path d="M135 250 L140 380 L150 380 L145 250" fill="#555" opacity="0.8" />
+                    <path d="M155 250 L160 380 L170 380 L165 250" fill="#555" opacity="0.8" />
+                    
+                    <!-- 骨折线 (斜形) -->
+                    <line x1="142" y1="320" x2="158" y2="340" stroke="#fff" stroke-width="8" opacity="0.9" />
+                    <line x1="145" y1="315" x2="155" y2="335" stroke="#aaa" stroke-width="3" />
+                    
+                    <!-- 碎骨片 -->
+                    <circle cx="150" cy="330" r="8" fill="#888" opacity="0.8" />
+                </svg>`,
+                marks: {
+                    circle: { x: 50, y: 65 },
+                    arrow: { x: 55, y: 60 },
+                    measure: { x1: 45, y1: 63, x2: 55, y2: 68, length: '2.8cm' },
+                    label: '桡骨骨折'
+                }
+            },
+            { 
+                id: 5, 
+                animal: '德牧', 
+                diagnosis: 'fracture',
+                // 狗骨盆骨折X光
+                svg: `<svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="300" height="500" fill="#111" />
+                    
+                    <!-- 骨盆 -->
+                    <ellipse cx="150" cy="280" rx="50" ry="30" fill="#555" opacity="0.8" />
+                    
+                    <!-- 股骨 -->
+                    <path d="M120 310 L125 420 L135 420 L130 310" fill="#555" opacity="0.8" />
+                    <path d="M170 310 L175 420 L185 420 L180 310" fill="#555" opacity="0.8" />
+                    
+                    <!-- 骨折线 (骨盆) -->
+                    <line x1="130" y1="280" x2="170" y2="280" stroke="#fff" stroke-width="8" opacity="0.9" />
+                    <line x1="135" y1="275" x2="165" y2="285" stroke="#aaa" stroke-width="3" />
+                    
+                    <!-- 骶骨 -->
+                    <rect x="140" y="220" width="20" height="50" fill="#555" opacity="0.8" />
+                </svg>`,
+                marks: {
+                    circle: { x: 48, y: 55 },
+                    arrow: { x: 52, y: 50 },
+                    measure: { x1: 45, y1: 53, x2: 55, y2: 55, length: '4.5cm' },
+                    label: '骨盆骨折'
+                }
+            },
+            { 
+                id: 6, 
+                animal: '狸花猫', 
+                diagnosis: 'normal',
+                // 猫正常腿骨X光
+                svg: `<svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="300" height="500" fill="#111" />
+                    
+                    <!-- 股骨 -->
+                    <rect x="140" y="150" width="15" height="120" fill="#666" opacity="0.8" />
+                    
+                    <!-- 胫骨 -->
+                    <rect x="140" y="280" width="15" height="100" fill="#666" opacity="0.8" />
+                    
+                    <!-- 关节 -->
+                    <circle cx="147" cy="270" r="18" fill="#555" opacity="0.7" />
+                    <circle cx="147" cy="380" r="15" fill="#555" opacity="0.7" />
+                    
+                    <!-- 脚趾 -->
+                    <circle cx="135" cy="450" r="8" fill="#666" opacity="0.7" />
+                    <circle cx="147" cy="455" r="8" fill="#666" opacity="0.7" />
+                    <circle cx="159" cy="450" r="8" fill="#666" opacity="0.7" />
+                </svg>`,
+                marks: null
+            }
+        ];
+
+        // 照片数据 - 对应不同宠物
+        const photoCases = [
+            { id: 1, animal: '金毛', diagnosis: 'fracture', name: '金毛 · 骨折', svg: xrayPreviews[0].svg },
+            { id: 2, animal: '布偶', diagnosis: 'normal', name: '布偶 · 正常', svg: xrayPreviews[1].svg },
+            { id: 3, animal: '泰迪', diagnosis: 'normal', name: '泰迪 · 正常', svg: xrayPreviews[2].svg },
+            { id: 4, animal: '拉布拉多', diagnosis: 'fracture', name: '拉布拉多 · 骨折', svg: xrayPreviews[3].svg },
+            { id: 5, animal: '德牧', diagnosis: 'fracture', name: '德牧 · 骨折', svg: xrayPreviews[4].svg },
+            { id: 6, animal: '狸花猫', diagnosis: 'normal', name: '狸花猫 · 正常', svg: xrayPreviews[5].svg }
+        ];
+
+        // 专家数据
+        const experts = {
+            '李专家': {
+                name: '李专家',
+                title: '骨科主任',
+                hospital: '市中心医院',
+                responseTime: '10分钟前',
+                diagnosis: '胫骨骨折',
+                suggestion: '建议外固定支架治疗',
+                notes: '愈合期约4-6周，术后限制活动2周'
+            },
+            '王专家': {
+                name: '王专家',
+                title: '影像科',
+                hospital: '市二院',
+                responseTime: '15分钟前',
+                diagnosis: '胫骨骨折，无明显移位',
+                suggestion: '建议保守治疗，外固定',
+                notes: '愈合期约3-5周，定期复查'
+            }
+        };
+
+        const pages = {
+            // 首页
+            home: {
+                content: `
+                    <div class="content">
+                        <div style="margin-bottom: 20px; margin-top: 10px;">
+                            <div style="font-size: 24px; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px;">👋 张医生</div>
+                            <div style="color: #64748b; font-size: 14px;">阳光乡镇诊所</div>
+                        </div>
+
+                        <div class="camera-area" onclick="openCamera()">
+                            <div class="camera-icon">📷</div>
+                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">上传影像图片</div>
+                            <div style="font-size: 14px; color: #64748b;">点击拍摄或从相册选择</div>
+                        </div>
+
+                        <div class="stats-row">
+                            <div class="stat-card"><div class="stat-number">24</div><div class="stat-label">诊断</div></div>
+                            <div class="stat-card"><div class="stat-number">8</div><div class="stat-label">会诊</div></div>
+                            <div class="stat-card"><div class="stat-number">96%</div><div class="stat-label">准确率</div></div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">
+                                <span>📋 最近会诊</span>
+                                <span style="color: #667eea; font-size: 14px;" onclick="event.stopPropagation(); navigateTo('records')">全部</span>
+                            </div>
+                            
+                            <div class="list-item" onclick="navigateTo('result-fracture')">
+                                <div class="item-left">
+                                    <span class="item-icon">🐕</span>
+                                    <div>
+                                        <div class="item-title">金毛 · 胫骨骨折</div>
+                                        <div class="item-sub">今天 10:30 · 等待专家</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-waiting">等待中</span>
+                            </div>
+
+                            <div class="list-item" onclick="navigateTo('result-normal')">
+                                <div class="item-left">
+                                    <span class="item-icon">🐈</span>
+                                    <div>
+                                        <div class="item-title">布偶 · 正常</div>
+                                        <div class="item-sub">昨天 15:20 · 已完成</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-done">正常</span>
+                            </div>
+
+                            <div class="list-item" onclick="navigateTo('result-normal')">
+                                <div class="item-left">
+                                    <span class="item-icon">🐕</span>
+                                    <div>
+                                        <div class="item-title">泰迪 · 正常</div>
+                                        <div class="item-sub">昨天 09:15 · 已完成</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-done">正常</span>
+                            </div>
+                        </div>
+
+                        <button class="btn" onclick="navigateTo('consult-apply')">申请会诊</button>
+                    </div>
+
+                    <div class="tab-bar">
+                        <div class="tab-item active" onclick="navigateTo('home')">
+                            <span class="tab-icon">🏠</span>
+                            <span>首页</span>
+                        </div>
+                        <div class="tab-item" onclick="navigateTo('records')">
+                            <span class="tab-icon">📋</span>
+                            <span>记录</span>
+                        </div>
+                        <div class="tab-item" onclick="navigateTo('profile')">
+                            <span class="tab-icon">👤</span>
+                            <span>我的</span>
+                        </div>
+                    </div>
+                `
+            },
+
+            // 相册页
+            gallery: {
+                content: `
+                    <div class="content">
+                        <div class="header">
+                            <span class="back" onclick="navigateTo('home')">←</span>
+                            <span class="header-title">选择照片</span>
+                        </div>
+
+                        <div class="photo-grid">
+                            ${photoCases.map((photo, index) => `
+                                <div class="photo-item" onclick="selectPhoto(${index + 1})">
+                                    <div style="width:100%; height:100%; background:#111; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px;">${photo.name}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <p style="color: #64748b; font-size: 12px; text-align: center;">点击任意照片开始分析</p>
+                    </div>
+                `
+            },
+
+            // AI加载页
+            loading: {
+                content: `
+                    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 500px;">
+                        <div style="font-size: 80px; margin-bottom: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🤖</div>
+                        
+                        <div class="progress">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+
+                        <div style="font-size: 20px; font-weight: 600; margin: 20px 0; color: #1e293b;">AI分析中</div>
+                        <div style="color: #64748b; font-size: 14px;">正在识别病灶，请稍候</div>
+                        <div style="color: #94a3b8; font-size: 12px; margin-top: 20px;">预计3秒完成</div>
+                    </div>
+                `
+            },
+
+            // 骨折病例结果
+            'result-fracture': {
+                content: `
+                    <div class="content">
+                        <div class="header">
+                            <span class="back" onclick="navigateTo('home')">←</span>
+                            <span class="header-title">AI诊断报告</span>
+                        </div>
+
+                        <div class="card">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                <span style="font-size: 48px;">🐕</span>
+                                <div>
+                                    <div style="font-weight: 700; font-size: 20px;">${currentCase.animal} · ${currentCase.age}</div>
+                                    <div style="color: #64748b;">${currentCase.gender} · ${currentCase.weight} · 主人: ${currentCase.owner}</div>
+                                </div>
+                            </div>
+                            <div style="background: #f8fafc; padding: 12px 16px; border-radius: 16px;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #475569;">就诊号: 20240224-001</span>
+                                    <span style="color: #667eea; font-weight: 500;">10:30</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">🔍 诊断结果</div>
+                            <div style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">胫骨骨折</div>
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                                <span class="badge badge-blue">置信度 94%</span>
+                                <span class="badge" style="background:#f1f5f9;">短斜形</span>
+                                <span class="badge" style="background:#f1f5f9;">移位15°</span>
+                            </div>
+                            <div style="color: #475569;">骨折线清晰 · 骨密度正常</div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">💊 治疗建议</div>
+                            <div style="font-size: 20px; font-weight: 600; margin-bottom: 4px;">外固定支架</div>
+                            <div style="color: #475569;">成功率 92% · 愈合期 4-6周</div>
+                            <div style="color: #475569; margin-top: 8px;">复查时间: 7天后</div>
+                        </div>
+
+                        <button class="btn" onclick="navigateTo('consult-apply')">申请会诊</button>
+                        <button class="btn btn-outline" onclick="navigateTo('home')">返回首页</button>
+                    </div>
+                `
+            },
+
+            // 正常病例结果
+            'result-normal': {
+                content: `
+                    <div class="content">
+                        <div class="header">
+                            <span class="back" onclick="navigateTo('home')">←</span>
+                            <span class="header-title">AI诊断报告</span>
+                        </div>
+
+                        <div class="card">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                <span style="font-size: 48px;">${currentCase.animal === '布偶' ? '🐈' : '🐕'}</span>
+                                <div>
+                                    <div style="font-weight: 700; font-size: 20px;">${currentCase.animal} · ${currentCase.age}</div>
+                                    <div style="color: #64748b;">${currentCase.gender} · ${currentCase.weight} · 主人: ${currentCase.owner}</div>
+                                </div>
+                            </div>
+                            <div style="background: #f8fafc; padding: 12px 16px; border-radius: 16px;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #475569;">就诊号: 20240223-015</span>
+                                    <span style="color: #667eea; font-weight: 500;">15:20</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="text-align: center;">
+                            <div class="checkmark">✓</div>
+                            <div style="font-size: 28px; font-weight: 700; color: #059669; margin-bottom: 8px;">未见异常</div>
+                            <div style="color: #475569; margin-bottom: 16px;">AI分析未发现明显病灶</div>
+                            <div class="badge badge-done" style="display: inline-block;">置信度 98%</div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">📋 影像所见</div>
+                            <div style="color: #475569;">骨骼结构完整，关节间隙正常，未见异常密度影。</div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">💊 建议</div>
+                            <div style="color: #475569;">定期体检，保持正常饮食运动。</div>
+                        </div>
+
+                        <button class="btn btn-outline" onclick="navigateTo('home')">返回首页</button>
+                    </div>
+                `
+            },
+
+            // 申请会诊
+            'consult-apply': {
+                content: `
+                    <div class="content">
+                        <div class="header">
+                            <span class="back" onclick="navigateTo('result-fracture')">←</span>
+                            <span class="header-title">申请会诊</span>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">👥 选择专家</div>
+                            <div class="list-item" onclick="applyConsult('李专家')">
+                                <div class="item-left">
+                                    <span style="color: #10b981;">●</span>
+                                    <div>
+                                        <div class="item-title">李专家 · 骨科主任</div>
+                                        <div class="item-sub">市中心医院 · 在线</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-blue">推荐</span>
+                            </div>
+                            <div class="list-item" onclick="applyConsult('王专家')">
+                                <div class="item-left">
+                                    <span style="color: #10b981;">●</span>
+                                    <div>
+                                        <div class="item-title">王专家 · 影像科</div>
+                                        <div class="item-sub">市二院 · 在线</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div class="item-left">
+                                    <span style="color: #94a3b8;">○</span>
+                                    <div>
+                                        <div class="item-title">张专家 · 外科</div>
+                                        <div class="item-sub">宠物医院 · 离线</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">📝 补充说明</div>
+                            <div style="background: #f8fafc; border-radius: 16px; padding: 16px; color: #64748b;">
+                                ${currentCase.animal} · 右后肢不敢着地，已拍X光，请确认骨折类型
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+
+            // 等待会诊
+            'consult-waiting': {
+                content: `
+                    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 500px;">
+                        <div style="font-size: 70px; margin-bottom: 30px;">⏳</div>
+                        <div style="font-size: 22px; font-weight: 700; margin-bottom: 10px;">已提交会诊申请</div>
+                        <div style="color: #64748b; text-align: center; margin-bottom: 30px;">${consultStatus.expert}将在15分钟内回复</div>
+                        
+                        <div class="progress">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+
+                        <button class="btn btn-outline" style="margin-top: 50px;" onclick="checkConsultResult()">查看回复</button>
+                        <button class="btn btn-outline" style="margin-top: 10px;" onclick="navigateTo('home')">返回首页</button>
+                    </div>
+                `
+            },
+
+            // 李专家会诊结果
+            'consult-result-li': {
+                content: `
+                    <div class="content">
+                        <div class="header">
+                            <span class="back" onclick="navigateTo('records')">←</span>
+                            <span class="header-title">会诊结果</span>
+                        </div>
+
+                        <div class="card">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 48px;">👨‍⚕️</span>
+                                <div>
+                                    <div style="font-weight: 700; font-size: 18px;">李专家 · 骨科主任</div>
+                                    <div style="color: #64748b;">市中心医院 · 10分钟前</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">📋 诊断意见</div>
+                            <div style="font-size: 20px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">胫骨骨折</div>
+                            <div style="color: #475569; margin-bottom: 8px;">建议外固定支架治疗</div>
+                            <div style="color: #475569;">愈合期约4-6周，术后限制活动2周</div>
+                            <div style="margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 12px;">
+                                <div style="font-weight: 500; margin-bottom: 4px;">📎 标注图片</div>
+                                <div style="background: #1e293b; color: white; padding: 20px; text-align: center; border-radius: 12px;">
+                                    X光片 · 骨折部位已标注
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="btn" style="flex:1; background: #10b981;" onclick="navigateTo('home')">✓ 接受</button>
+                            <button class="btn btn-outline" style="flex:1;" onclick="navigateTo('consult-apply')">✗ 拒绝</button>
+                        </div>
+                        <button class="btn btn-outline" style="margin-top: 12px;" onclick="navigateTo('chat')">💬 联系专家</button>
+                    </div>
+                `
+            },
+
+            // 王专家会诊结果
+            'consult-result-wang': {
+                content: `
+                    <div class="content">
+                        <div class="header">
+                            <span class="back" onclick="navigateTo('records')">←</span>
+                            <span class="header-title">会诊结果</span>
+                        </div>
+
+                        <div class="card">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 48px;">👨‍⚕️</span>
+                                <div>
+                                    <div style="font-weight: 700; font-size: 18px;">王专家 · 影像科</div>
+                                    <div style="color: #64748b;">市二院 · 15分钟前</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">📋 诊断意见</div>
+                            <div style="font-size: 20px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">胫骨骨折，无明显移位</div>
+                            <div style="color: #475569; margin-bottom: 8px;">建议保守治疗，外固定</div>
+                            <div style="color: #475569;">愈合期约3-5周，定期复查</div>
+                            <div style="margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 12px;">
+                                <div style="font-weight: 500; margin-bottom: 4px;">📎 标注图片</div>
+                                <div style="background: #1e293b; color: white; padding: 20px; text-align: center; border-radius: 12px;">
+                                    X光片 · 骨折线清晰
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="btn" style="flex:1; background: #10b981;" onclick="navigateTo('home')">✓ 接受</button>
+                            <button class="btn btn-outline" style="flex:1;" onclick="navigateTo('consult-apply')">✗ 拒绝</button>
+                        </div>
+                        <button class="btn btn-outline" style="margin-top: 12px;" onclick="navigateTo('chat')">💬 联系专家</button>
+                    </div>
+                `
+            },
+
+            // 记录列表
+            records: {
+                content: `
+                    <div class="content">
+                        <div style="font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0 20px;">会诊记录</div>
+
+                        <div class="card">
+                            <div class="card-title">📅 今天</div>
+                            <div class="list-item" onclick="navigateTo('result-fracture')">
+                                <div class="item-left">
+                                    <span class="item-icon">🐕</span>
+                                    <div>
+                                        <div class="item-title">金毛 · 胫骨骨折</div>
+                                        <div class="item-sub">10:30 · 等待专家</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-waiting">等待中</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">📅 昨天</div>
+                            <div class="list-item" onclick="navigateTo('result-normal')">
+                                <div class="item-left">
+                                    <span class="item-icon">🐈</span>
+                                    <div>
+                                        <div class="item-title">布偶 · 正常</div>
+                                        <div class="item-sub">15:20 · 已完成</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-done">正常</span>
+                            </div>
+                            <div class="list-item" onclick="navigateTo('result-normal')">
+                                <div class="item-left">
+                                    <span class="item-icon">🐕</span>
+                                    <div>
+                                        <div class="item-title">泰迪 · 正常</div>
+                                        <div class="item-sub">09:15 · 已完成</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-done">正常</span>
+                            </div>
+                            <div class="list-item" onclick="navigateTo('consult-result-li')">
+                                <div class="item-left">
+                                    <span class="item-icon">🐕</span>
+                                    <div>
+                                        <div class="item-title">拉布拉多 · 骨折</div>
+                                        <div class="item-sub">昨天 14:20 · 李专家</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-done">已完成</span>
+                            </div>
+                            <div class="list-item" onclick="navigateTo('consult-result-wang')">
+                                <div class="item-left">
+                                    <span class="item-icon">🐕</span>
+                                    <div>
+                                        <div class="item-title">德牧 · 骨折</div>
+                                        <div class="item-sub">昨天 11:30 · 王专家</div>
+                                    </div>
+                                </div>
+                                <span class="badge badge-done">已完成</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-bar">
+                        <div class="tab-item" onclick="navigateTo('home')">
+                            <span class="tab-icon">🏠</span>
+                            <span>首页</span>
+                        </div>
+                        <div class="tab-item active" onclick="navigateTo('records')">
+                            <span class="tab-icon">📋</span>
+                            <span>记录</span>
+                        </div>
+                        <div class="tab-item" onclick="navigateTo('profile')">
+                            <span class="tab-icon">👤</span>
+                            <span>我的</span>
+                        </div>
+                    </div>
+                `
+            },
+
+            // 个人中心
+            profile: {
+                content: `
+                    <div class="content">
+                        <div style="display: flex; flex-direction: column; align-items: center; margin: 20px 0 30px;">
+                            <div style="font-size: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 15px;">👤</div>
+                            <div style="font-size: 24px; font-weight: 700;">张医生</div>
+                            <div style="color: #64748b;">阳光乡镇诊所 · 主治医师</div>
+                        </div>
+
+                        <div class="stats-row" style="grid-template-columns: repeat(3, 1fr);">
+                            <div class="stat-card"><div class="stat-number">24</div><div class="stat-label">诊断</div></div>
+                            <div class="stat-card"><div class="stat-number">8</div><div class="stat-label">会诊</div></div>
+                            <div class="stat-card"><div class="stat-number">96%</div><div class="stat-label">准确率</div></div>
+                        </div>
+
+                        <div class="card">
+                            <div class="list-item" onclick="navigateTo('records')">
+                                <div class="item-left">
+                                    <span style="font-size: 20px;">📋</span>
+                                    <span class="item-title">会诊记录</span>
+                                </div>
+                                <span style="color: #94a3b8;">8次 ›</span>
+                            </div>
+                            <div class="list-item" onclick="navigateTo('settings')">
+                                <div class="item-left">
+                                    <span style="font-size: 20px;">⚙️</span>
+                                    <span class="item-title">设置</span>
+                                </div>
+                                <span style="color: #94a3b8;">›</span>
+                            </div>
+                            <div class="list-item">
+                                <div class="item-left">
+                                    <span style="font-size: 20px;">📞</span>
+                                    <span class="item-title">联系客服</span>
+                                </div>
+                                <span style="color: #94a3b8;">›</span>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-outline" style="margin-top: 20px;" onclick="navigateTo('home')">退出登录</button>
+                    </div>
+
+                    <div class="tab-bar">
+                        <div class="tab-item" onclick="navigateTo('home')">
+                            <span class="tab-icon">🏠</span>
+                            <span>首页</span>
+                        </div>
+                        <div class="tab-item" onclick="navigateTo('records')">
+                            <span class="tab-icon">📋</span>
+                            <span>记录</span>
+                        </div>
+                        <div class="tab-item active" onclick="navigateTo('profile')">
+                            <span class="tab-icon">👤</span>
+                            <span>我的</span>
+                        </div>
+                    </div>
+                `
+            },
+
+            // 设置
+            settings: {
+                content: `
+                    <div class="content">
+                        <div class="header">
+                            <span class="back" onclick="navigateTo('profile')">←</span>
+                            <span class="header-title">设置</span>
+                        </div>
+
+                        <div class="card">
+                            <div class="list-item"><span>🔔 通知提醒</span> <span style="color: #667eea;">已开启</span></div>
+                            <div class="list-item"><span>🔒 隐私设置</span> <span style="color: #94a3b8;">›</span></div>
+                            <div class="list-item"><span>🤖 AI敏感度</span> <span>中</span></div>
+                        </div>
+
+                        <div class="card">
+                            <div class="list-item"><span>📱 关于我们</span> <span>v2.0</span></div>
+                            <div class="list-item"><span>📄 用户协议</span> <span>›</span></div>
+                        </div>
+
+                        <button class="btn btn-outline" onclick="navigateTo('home')">返回首页</button>
+                    </div>
+                `
+            }
+        };
+
+        // 打开相机
+        function openCamera() {
+            cameraActive = true;
+            photoCaptured = false;
+            selectedXrayIndex = 0;
+            showCamera();
+        }
+
+        // 显示相机界面
+        function showCamera() {
+            const xray = xrayPreviews[selectedXrayIndex];
+            const app = document.getElementById('app');
+            
+            let marksHtml = '';
+            if (xray.marks) {
+                const m = xray.marks;
+                marksHtml = `
+                    <div class="xray-mark-circle" style="left: ${m.circle.x}%; top: ${m.circle.y}%;"></div>
+                    <div class="xray-arrow" style="left: ${m.arrow.x}%; top: ${m.arrow.y}%;"></div>
+                    <div class="xray-measure-dot" style="left: ${m.measure.x1}%; top: ${m.measure.y1}%;"></div>
+                    <div class="xray-measure-dot" style="left: ${m.measure.x2}%; top: ${m.measure.y2}%;"></div>
+                    <div class="xray-measure-line" style="left: ${m.measure.x1}%; top: ${m.measure.y1}%; width: ${Math.sqrt(Math.pow(m.measure.x2 - m.measure.x1, 2) + Math.pow(m.measure.y2 - m.measure.y1, 2)) * 3}px; transform: rotate(${Math.atan2(m.measure.y2 - m.measure.y1, m.measure.x2 - m.measure.x1)}rad);"></div>
+                    <div class="xray-measure-label" style="left: ${(m.measure.x1 + m.measure.x2) / 2}%; top: ${(m.measure.y1 + m.measure.y2) / 2 - 3}%;">${m.measure.length}</div>
+                    <div class="xray-label" style="left: ${m.circle.x + 5}%; top: ${m.circle.y - 8}%;">${m.label}</div>
+                `;
+            }
+
+            app.innerHTML = `
+                <div class="camera-fullscreen">
+                    <div class="camera-view">
+                        <div class="xray-container">
+                            <div class="xray-svg">${xray.svg}</div>
+                            ${marksHtml}
+                        </div>
+                    </div>
+                    
+                    <div class="xray-preview-images">
+                        ${xrayPreviews.map((x, index) => `
+                            <div class="xray-thumb ${index === selectedXrayIndex ? 'selected' : ''}" onclick="selectXrayPreview(${index})">
+                                <div class="xray-svg" style="width:100%; height:100%;">${x.svg}</div>
+                                ${x.diagnosis === 'fracture' ? '<div class="xray-thumb-mark"></div>' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    ${!photoCaptured ? `
+                        <div class="camera-controls">
+                            <div class="camera-close" onclick="closeCamera()">✕</div>
+                            <div class="camera-btn" onclick="takePicture()">📷</div>
+                            <div class="camera-close" onclick="navigateTo('gallery')">🖼️</div>
+                        </div>
+                    ` : `
+                        <div class="confirm-bar">
+                            <div class="retake-btn" onclick="retakePicture()">重拍</div>
+                            <div class="confirm-btn" onclick="confirmPicture()">使用照片</div>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        // 选择X光预览图
+        function selectXrayPreview(index) {
+            selectedXrayIndex = index;
+            showCamera();
+        }
+
+        // 拍照
+        function takePicture() {
+            photoCaptured = true;
+            showCamera();
+        }
+
+        // 重拍
+        function retakePicture() {
+            photoCaptured = false;
+            showCamera();
+        }
+
+        // 确认使用照片
+        function confirmPicture() {
+            cameraActive = false;
+            const selected = xrayPreviews[selectedXrayIndex];
+            currentCase = {
+                animal: selected.animal,
+                age: selected.animal === '金毛' ? '5岁' : 
+                     selected.animal === '布偶' ? '3岁' :
+                     selected.animal === '泰迪' ? '2岁' : '4岁',
+                gender: selected.animal === '布偶' ? '雌性' : '雄性',
+                weight: selected.animal === '金毛' ? '28kg' :
+                        selected.animal === '布偶' ? '4kg' :
+                        selected.animal === '泰迪' ? '3kg' : '25kg',
+                owner: selected.animal === '金毛' ? '蒋女士' :
+                       selected.animal === '布偶' ? '李先生' :
+                       selected.animal === '泰迪' ? '王女士' : '张先生',
+                diagnosis: selected.diagnosis
+            };
+            navigateTo('loading');
+        }
+
+        // 关闭相机
+        function closeCamera() {
+            cameraActive = false;
+            navigateTo('home');
+        }
+
+        // 选择照片函数
+        function selectPhoto(id) {
+            const index = id - 1;
+            const selectedCase = photoCases[index];
+            
+            currentCase = {
+                animal: selectedCase.animal,
+                age: selectedCase.animal === '金毛' ? '5岁' : 
+                     selectedCase.animal === '布偶' ? '3岁' :
+                     selectedCase.animal === '泰迪' ? '2岁' : '4岁',
+                gender: selectedCase.animal === '布偶' ? '雌性' : '雄性',
+                weight: selectedCase.animal === '金毛' ? '28kg' :
+                        selectedCase.animal === '布偶' ? '4kg' :
+                        selectedCase.animal === '泰迪' ? '3kg' : '25kg',
+                owner: selectedCase.animal === '金毛' ? '蒋女士' :
+                       selectedCase.animal === '布偶' ? '李先生' :
+                       selectedCase.animal === '泰迪' ? '王女士' : '张先生',
+                diagnosis: selectedCase.diagnosis
+            };
+            
+            navigateTo('loading');
+        }
+
+        // 申请会诊函数
+        function applyConsult(expert) {
+            consultStatus.applied = true;
+            consultStatus.expert = expert;
+            consultStatus.expertType = expert;
+            consultStatus.result = experts[expert];
+            navigateTo('consult-waiting');
+        }
+
+        // 查看会诊结果
+        function checkConsultResult() {
+            if (consultStatus.result) {
+                if (consultStatus.expert === '李专家') {
+                    navigateTo('consult-result-li');
+                } else if (consultStatus.expert === '王专家') {
+                    navigateTo('consult-result-wang');
+                } else {
+                    navigateTo('consult-result-li');
+                }
+            } else {
+                alert('专家还未回复，请稍后再试');
+            }
+        }
+
+        // 导航函数
+        function navigateTo(page) {
+            if (cameraActive) {
+                cameraActive = false;
+            }
+            if (pages[page]) {
+                document.getElementById('app').innerHTML = pages[page].content;
+                window.scrollTo(0, 0);
+            } else {
+                navigateTo('home');
+            }
+        }
+
+        // 自动跳转：加载页3秒后到结果页
+        let loadingTimer = null;
+        const originalNavigate = navigateTo;
+        navigateTo = function(page) {
+            if (loadingTimer) clearTimeout(loadingTimer);
+            
+            if (page === 'loading') {
+                originalNavigate('loading');
+                loadingTimer = setTimeout(() => {
+                    if (currentCase.diagnosis === 'fracture') {
+                        navigateTo('result-fracture');
+                    } else {
+                        navigateTo('result-normal');
+                    }
+                }, 3000);
+            } else {
+                originalNavigate(page);
+            }
+        };
+
+        // 初始化
+        window.onload = () => {
+            navigateTo('home');
+        };
+    </script>
+</body>
+</html>
